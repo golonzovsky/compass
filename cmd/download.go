@@ -45,8 +45,9 @@ func NewDownloadCmd() *cobra.Command {
 
 			hashCh := hash.NewPrefixGen()
 			hashes, _ := downloadHashes(cmd.Context(), hashCh, options.Parallel)
-			storeRanges(cmd.Context(), store, hashes, options.Parallel)
+			done, _ := storeRanges(cmd.Context(), store, hashes, options.Parallel)
 
+			<-done
 			// print stats
 			// "Finished downloading all hash ranges in ElapsedMilliseconds-ms (HashesPerSecond hashes per second)."
 			// "We made CloudflareRequests Cloudflare requests (avg response time: CloudflareRequestTimeTotal/CloudflareRequests-ms). Of those, Cloudflare had already cached CloudflareHits requests, and made CloudflareMisses requests to the Have I Been Pwned origin server."
@@ -60,8 +61,9 @@ func NewDownloadCmd() *cobra.Command {
 	return cmd
 }
 
-func storeRanges(ctx context.Context, store *storage.FolderStorage, rangeRespCh <-chan *pwned.RangeResponse, parallel int) <-chan error {
+func storeRanges(ctx context.Context, store *storage.FolderStorage, rangeRespCh <-chan *pwned.RangeResponse, parallel int) (<-chan struct{}, <-chan error) {
 	errs := make(chan error, 1)
+	done := make(chan struct{})
 
 	g, _ := errgroup.WithContext(ctx)
 	for i := 0; i < parallel; i++ {
@@ -75,16 +77,17 @@ func storeRanges(ctx context.Context, store *storage.FolderStorage, rangeRespCh 
 			return nil
 		})
 	}
-	//go func() {
-	err := g.Wait()
-	if err != nil && err != context.Canceled {
-		log.Error("Failure during hash store", "err", err.Error())
-		errs <- err
-		close(errs)
-	}
-	//}()
+	go func() {
+		err := g.Wait()
+		if err != nil && err != context.Canceled {
+			log.Error("Failure during hash store", "err", err.Error())
+			errs <- err
+			close(errs)
+		}
+		close(done)
+	}()
 
-	return errs
+	return done, errs
 }
 
 func downloadHashes(ctx context.Context, hashCh <-chan string, parallel int) (<-chan *pwned.RangeResponse, <-chan error) {
