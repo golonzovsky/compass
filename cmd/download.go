@@ -35,7 +35,6 @@ func NewDownloadCmd() *cobra.Command {
 		Use:   "download",
 		Short: "download hashes from haveibeenpwned.com (~25Gb)",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// todo check if output dir exists and not empty and fail if not --override or delete
 			// todo update stats every 100ms
 
 			store, err := storage.NewFolderStorage(options.OutDir)
