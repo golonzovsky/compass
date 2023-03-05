@@ -42,6 +42,8 @@ func NewDownloadCmd() *cobra.Command {
 				return err
 			}
 
+			// todo use len(channel) to find out which side is saturated in order to find out optimal parallelism
+
 			hashCh := hash.NewPrefixGen()
 			hashes, _ := downloadHashes(cmd.Context(), hashCh, options.Parallel)
 			done, _ := storeRanges(cmd.Context(), store, hashes, options.Parallel)
