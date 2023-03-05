@@ -1,16 +1,13 @@
 # comPass - compromised password checks
 download/check compromised password hashes from haveibeenpwned.com
 
-## Background
-
-Inspired by 
-https://github.com/HaveIBeenPwned/PwnedPasswordsDownloader  
-
 
 ### Download
-Uses api https://haveibeenpwned.com/API/v3
+Download inspired by https://github.com/HaveIBeenPwned/PwnedPasswordsDownloader  
+Uses range search api endpoint (https://haveibeenpwned.com/API/v3#SearchingPwnedPasswordsByRange) to get hashes for all (`0x00000-0xFFFFF`) ranges.
 
-Range search endpoint (https://haveibeenpwned.com/API/v3#SearchingPwnedPasswordsByRange) to get hashes for all ranges.
+> A range search typically returns approximately 800 hash suffixes, although this number will differ depending on the hash prefix being searched for and will increase as more passwords are added. There are 1,048,576 different hash prefixes between 00000 and FFFFF (16^5) and every single one will return HTTP 200; there is no circumstance in which the API should return HTTP 404.
+
 ```bash
 xh https://api.pwnedpasswords.com/range/21BD1                                                                                dev-cookie/search 
 HTTP/2.0 200 OK                                                                                                                                    
@@ -61,4 +58,4 @@ x-content-type-options: nosniff
 
 ```
 
- > A range search typically returns approximately 800 hash suffixes, although this number will differ depending on the hash prefix being searched for and will increase as more passwords are added. There are 1,048,576 different hash prefixes between 00000 and FFFFF (16^5) and every single one will return HTTP 200; there is no circumstance in which the API should return HTTP 404. 
+  
