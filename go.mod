@@ -1,4 +1,4 @@
-module github.com/golonzovsky/compPassDownload
+module github.com/golonzovsky/comPass
 
 go 1.20
 

@@ -1,10 +1,16 @@
-# download compromised passwords hashes from haveibeenpwned.com
+# comPass - compromised password checks
+download/check compromised password hashes from haveibeenpwned.com
 
-Inspired by https://github.com/HaveIBeenPwned/PwnedPasswordsDownloader
+## Background
 
-Uses range search api https://haveibeenpwned.com/API/v3
+Inspired by 
+https://github.com/HaveIBeenPwned/PwnedPasswordsDownloader  
 
-We use range search endpoint (https://haveibeenpwned.com/API/v3#SearchingPwnedPasswordsByRange) to get hashes for all ranges.
+
+### Download
+Uses api https://haveibeenpwned.com/API/v3
+
+Range search endpoint (https://haveibeenpwned.com/API/v3#SearchingPwnedPasswordsByRange) to get hashes for all ranges.
 ```bash
 xh https://api.pwnedpasswords.com/range/21BD1                                                                                dev-cookie/search 
 HTTP/2.0 200 OK                                                                                                                                    
