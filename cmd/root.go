@@ -11,5 +11,6 @@ func NewRootCmd() *cobra.Command {
 	cmd.AddCommand(NewDownloadCmd())
 	cmd.AddCommand(NewBloomCmd())
 	cmd.AddCommand(NewCheckCmd())
+	cmd.AddCommand(NewServeCmd())
 	return cmd
 }

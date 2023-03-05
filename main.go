@@ -11,6 +11,7 @@ import (
 )
 
 func main() {
+	log.SetLevel(log.DebugLevel)
 	errorLogger := log.New(log.WithOutput(os.Stderr))
 
 	c := make(chan os.Signal, 1)

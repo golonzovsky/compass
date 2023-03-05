@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/charmbracelet/log v0.1.2
 	github.com/spf13/cobra v1.6.1
+	golang.org/x/sync v0.1.0
 )
 
 require (
