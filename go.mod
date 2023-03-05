@@ -1,3 +1,3 @@
-module github.com/golonzovsky/pwndPassDownload
+module github.com/golonzovsky/compPassDownload
 
 go 1.20
