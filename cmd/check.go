@@ -33,12 +33,13 @@ func NewCheckCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
+			passHashSuffix := passwordHash[5:]
 			for _, line := range strings.Split(string(responseData), "\r\n") {
 				split := strings.Split(line, ":")
 				hash := strings.ToLower(split[0])
 				count := split[1]
-				if hash == passwordHash {
-					log.Info("Password compromised", "count", count)
+				if hash == passHashSuffix {
+					log.Warn("Password compromised", "count", count)
 					return nil
 				}
 			}
