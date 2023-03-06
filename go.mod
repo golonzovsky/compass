@@ -11,6 +11,7 @@ require (
 require (
 	github.com/charmbracelet/lipgloss v0.6.0 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
+	github.com/google/brotli/go/cbrotli v0.0.0-20230201092028-ed1995b6bda1 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect

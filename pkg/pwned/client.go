@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/log"
+	"github.com/google/brotli/go/cbrotli"
 )
 
 type client struct {
@@ -74,6 +75,7 @@ func (c *client) DownloadRange(ctx context.Context, hashPrefix string) (*RangeRe
 	if err != nil {
 		return nil, err
 	}
+	req.Header.Set("Accept-Encoding", "br")
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
@@ -85,12 +87,21 @@ func (c *client) DownloadRange(ctx context.Context, hashPrefix string) (*RangeRe
 		return nil, err
 	}
 
+	encoding := resp.Header.Get("Content-Encoding")
+	if encoding != "br" {
+		return nil, fmt.Errorf("unexpected encoding: %s", encoding)
+	}
+	decode, err := cbrotli.Decode(responseData)
+	if err != nil {
+		return nil, err
+	}
+
 	lm := resp.Header.Get("Last-Modified")
 	lastModified, err := time.Parse(time.RFC1123, lm)
 
 	return &RangeResponse{
 		HashPrefix:         hashPrefix,
-		Body:               responseData,
+		Body:               decode,
 		ETag:               resp.Header.Get("ETag"),
 		CloudflareCacheHit: resp.Header.Get("CF-Cache-Status") == "HIT",
 		LastModified:       lastModified,
