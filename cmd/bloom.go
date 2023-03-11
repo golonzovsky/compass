@@ -10,7 +10,7 @@ func NewBloomCmd() *cobra.Command {
 		Use:   "bloom",
 		Short: "build bloom filters from password hashes",
 		RunE: func(cmd *cobra.Command, args []string) error {
-
+			//todo implement
 			return nil
 		},
 	}

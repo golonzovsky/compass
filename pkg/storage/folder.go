@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
@@ -60,6 +61,28 @@ func (fs *FolderStorage) SaveRange(ctx context.Context, rr *pwned.RangeResponse)
 		return err
 	}
 	defer f.Close()
-	_, err = f.Write(rr.Body)
+	_, err = f.Write(rr.Body) // todo store without counts, so binary search with rr.ReadAt is possible
 	return err
+}
+
+func (fs *FolderStorage) Contains(hash string) (bool, error) {
+	prefix := strings.ToLower(hash[:5])
+
+	rr, err := os.Open(fs.path + "/" + prefix + ".txt")
+	if err != nil {
+		return false, err // todo return sentinel error for range not yet downloaded
+	}
+	defer rr.Close()
+
+	lines, err := io.ReadAll(rr)
+	if err != nil {
+		return false, err
+	}
+	for _, line := range strings.Split(string(lines), "\n") {
+		if strings.HasPrefix(line, hash[5:]) {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }

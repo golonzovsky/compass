@@ -2,8 +2,6 @@ package pwned
 
 import (
 	"context"
-	"crypto/sha1"
-	"encoding/hex"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,6 +11,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/log"
+	"github.com/golonzovsky/comPass/pkg/hash"
 	"github.com/google/brotli/go/cbrotli"
 )
 
@@ -34,8 +33,7 @@ func NewClient() *client {
 func (c *client) CheckPasswordOnline(ctx context.Context, pass string) error {
 	log.Info("Checking password online")
 
-	passSha := sha1.Sum([]byte(pass))
-	passwordHash := hex.EncodeToString(passSha[:])
+	passwordHash := hash.Compute(pass)
 	hashPrefix := passwordHash[:5]
 
 	rangeContent, err := c.DownloadRange(ctx, hashPrefix)
