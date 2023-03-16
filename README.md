@@ -58,4 +58,8 @@ x-content-type-options: nosniff
 
 ```
 
-  
+## todo 
+ - bloom build
+ - bloom check 
+ - single file download - skip counts? 
+ - metadata store - bbolt for kicks 

@@ -37,6 +37,12 @@ func NewDownloadCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// todo update stats every 100ms
 
+			mdStore, err := storage.NewMetadataStore(options.OutDir)
+			if err != nil {
+				return err
+			}
+			defer mdStore.Close()
+
 			store, err := storage.NewFolderStorage(options.OutDir)
 			if err != nil {
 				return err
@@ -45,8 +51,8 @@ func NewDownloadCmd() *cobra.Command {
 			// todo use len(channel) to find out which side is saturated in order to find out optimal parallelism
 
 			hashCh := hash.NewPrefixGen()
-			hashes, _ := downloadHashes(cmd.Context(), hashCh, options.Parallel)
-			done, _ := storeRanges(cmd.Context(), store, hashes, options.Parallel)
+			hashes, _ := downloadHashes(cmd.Context(), mdStore, hashCh, options.Parallel)
+			done, _ := storeRanges(cmd.Context(), store, mdStore, hashes, options.Parallel)
 
 			<-done
 			// print stats
@@ -62,7 +68,7 @@ func NewDownloadCmd() *cobra.Command {
 	return cmd
 }
 
-func storeRanges(ctx context.Context, store *storage.FolderStorage, rangeRespCh <-chan *pwned.RangeResponse, parallel int) (<-chan struct{}, <-chan error) {
+func storeRanges(ctx context.Context, store *storage.FolderStorage, mdStore *storage.MetadataStore, rangeRespCh <-chan *pwned.RangeResponse, parallel int) (<-chan struct{}, <-chan error) {
 	errs := make(chan error, 1)
 	done := make(chan struct{})
 
@@ -70,8 +76,10 @@ func storeRanges(ctx context.Context, store *storage.FolderStorage, rangeRespCh 
 	for i := 0; i < parallel; i++ {
 		g.Go(func() error {
 			for rr := range rangeRespCh {
-				err := store.SaveRange(ctx, rr)
-				if err != nil {
+				if err := store.SaveRange(rr); err != nil {
+					return err
+				}
+				if err := mdStore.Save(rr.HashPrefix, &rr.RangeMetadata); err != nil {
 					return err
 				}
 			}
@@ -91,7 +99,7 @@ func storeRanges(ctx context.Context, store *storage.FolderStorage, rangeRespCh 
 	return done, errs
 }
 
-func downloadHashes(ctx context.Context, hashCh <-chan string, parallel int) (<-chan *pwned.RangeResponse, <-chan error) {
+func downloadHashes(ctx context.Context, metadataStore *storage.MetadataStore, hashCh <-chan string, parallel int) (<-chan *pwned.RangeResponse, <-chan error) {
 	ranges := make(chan *pwned.RangeResponse, parallel)
 	errs := make(chan error, 1)
 	pwndClient := pwned.NewClient()
@@ -99,6 +107,14 @@ func downloadHashes(ctx context.Context, hashCh <-chan string, parallel int) (<-
 	for i := 0; i < parallel; i++ {
 		g.Go(func() error {
 			for prefix := range hashCh {
+				refresh, err := metadataStore.NeedsRefresh(prefix)
+				if err != nil {
+					return err
+				}
+				if !refresh {
+					log.Debug("Skipping hash range, as its to date", "hashPrefix", prefix)
+					continue
+				}
 				rangeResp, err := pwndClient.DownloadRange(ctx, prefix)
 				if err != nil {
 					return err

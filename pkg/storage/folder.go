@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"os"
@@ -13,6 +12,8 @@ import (
 
 // todo implement metadata (etag, lastModified etc) storage as well
 // todo sharded store
+
+var rangeMetadataBucket = []byte("RangeMetadata")
 
 type FolderStorage struct {
 	path string
@@ -31,7 +32,9 @@ func NewFolderStorage(path string) (*FolderStorage, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &FolderStorage{path: path}, nil
+	return &FolderStorage{
+		path: path,
+	}, nil
 }
 
 func ensureFolderExists(path string) error {
@@ -54,7 +57,7 @@ func ensureFolderExists(path string) error {
 	return nil
 }
 
-func (fs *FolderStorage) SaveRange(ctx context.Context, rr *pwned.RangeResponse) error {
+func (fs *FolderStorage) SaveRange(rr *pwned.RangeResponse) error {
 	log.Debug("Saving range", "hashPrefix", rr.HashPrefix)
 	f, err := os.Create(fs.path + "/" + rr.HashPrefix + ".txt")
 	if err != nil {

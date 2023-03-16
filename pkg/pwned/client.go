@@ -54,12 +54,17 @@ func (c *client) CheckPasswordOnline(ctx context.Context, pass string) error {
 }
 
 type RangeResponse struct {
-	HashPrefix         string
-	Body               []byte
+	HashPrefix string
+	Body       []byte
+	RangeMetadata
+	// "?ntlm=true"
+}
+
+type RangeMetadata struct {
 	ETag               string
 	CloudflareCacheHit bool
 	LastModified       time.Time
-	// "?ntlm=true"
+	Expires            time.Time
 }
 
 func (rr *RangeResponse) String() string {
@@ -97,12 +102,18 @@ func (c *client) DownloadRange(ctx context.Context, hashPrefix string) (*RangeRe
 	lm := resp.Header.Get("Last-Modified")
 	lastModified, err := time.Parse(time.RFC1123, lm)
 
+	exp := resp.Header.Get("Expires")
+	expires, err := time.Parse(time.RFC1123, exp)
+
 	return &RangeResponse{
-		HashPrefix:         hashPrefix,
-		Body:               decode,
-		ETag:               resp.Header.Get("ETag"),
-		CloudflareCacheHit: resp.Header.Get("CF-Cache-Status") == "HIT",
-		LastModified:       lastModified,
+		HashPrefix: hashPrefix,
+		Body:       decode,
+		RangeMetadata: RangeMetadata{
+			ETag:               resp.Header.Get("ETag"),
+			LastModified:       lastModified,
+			CloudflareCacheHit: resp.Header.Get("CF-Cache-Status") == "HIT",
+			Expires:            expires,
+		},
 	}, nil
 }
 
