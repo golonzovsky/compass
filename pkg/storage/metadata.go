@@ -16,15 +16,15 @@ type MetadataStore struct {
 	db *bolt.DB
 }
 
+// NewMetadataStore creates new store in specified folder with metadata.db name.
+// does create folder if not existing, expands home path (~) if needed
 func NewMetadataStore(path string) (*MetadataStore, error) {
-	if strings.HasPrefix(path, "~/") {
-		homedir, err := os.UserHomeDir()
-		if err != nil {
-			return nil, err
-		}
-		path = homedir + path[1:]
+	path, err := expandHome(path)
+	if err != nil {
+		return nil, err
 	}
-	err := ensureFolderExists(path)
+
+	err = ensureFolderExists(path)
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +33,6 @@ func NewMetadataStore(path string) (*MetadataStore, error) {
 	if err != nil {
 		return nil, err
 	}
-	//defer db.Close()
 
 	err = db.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists(rangeMetadataBucket)
@@ -49,6 +48,17 @@ func NewMetadataStore(path string) (*MetadataStore, error) {
 	return &MetadataStore{
 		db: db,
 	}, nil
+}
+
+func expandHome(path string) (string, error) {
+	if !strings.HasPrefix(path, "~/") {
+		return path, nil
+	}
+	homedir, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	return homedir + path[1:], nil
 }
 
 func (ms *MetadataStore) Save(hashPrefix string, metadata *pwned.RangeMetadata) error {
@@ -67,8 +77,8 @@ func (ms *MetadataStore) Save(hashPrefix string, metadata *pwned.RangeMetadata) 
 }
 
 func (ms *MetadataStore) get(hashPrefix string) (*pwned.RangeMetadata, error) {
-	var metadata pwned.RangeMetadata
-	return &metadata, ms.db.View(func(tx *bolt.Tx) error {
+	var metadata *pwned.RangeMetadata
+	return metadata, ms.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket(rangeMetadataBucket)
 		hashByte, err := hash.FromPrefix(hashPrefix)
 		if err != nil {

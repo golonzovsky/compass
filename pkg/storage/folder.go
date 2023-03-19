@@ -70,6 +70,7 @@ func (fs *FolderStorage) SaveRange(rr *pwned.RangeResponse) error {
 
 func (fs *FolderStorage) Contains(hash string) (bool, error) {
 	prefix := strings.ToLower(hash[:5])
+	suffix := strings.ToUpper(hash[5:])
 
 	rr, err := os.Open(fs.path + "/" + prefix + ".txt")
 	if err != nil {
@@ -77,12 +78,13 @@ func (fs *FolderStorage) Contains(hash string) (bool, error) {
 	}
 	defer rr.Close()
 
+	//todo binary search
 	lines, err := io.ReadAll(rr)
 	if err != nil {
 		return false, err
 	}
 	for _, line := range strings.Split(string(lines), "\n") {
-		if strings.HasPrefix(line, hash[5:]) {
+		if strings.HasPrefix(line, suffix) {
 			return true, nil
 		}
 	}
