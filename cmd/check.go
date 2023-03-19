@@ -23,10 +23,7 @@ func NewCheckCmd() *cobra.Command {
 
 			// todo check if bloom available and evaluate
 
-			// todo check if local file based hashes available and evaluate
-
-			return CheckPasswordInFolder(cmd.Context(), dir, args[0])
-			//return pwned.NewClient().CheckPasswordOnline(cmd.Context(), args[0])
+			return CheckPassword(cmd.Context(), dir, args[0])
 		},
 	}
 
@@ -34,8 +31,8 @@ func NewCheckCmd() *cobra.Command {
 	return cmd
 }
 
-func CheckPasswordInFolder(ctx context.Context, dir string, pass string) error {
-	log.Info("Checking password on folder based storage")
+func CheckPassword(ctx context.Context, dir string, pass string) error {
+	log.Info("Checking password on folder storage and online for missing ranges")
 
 	folderStore, err := storage.NewFolderStorage(dir)
 	if err != nil {
@@ -43,7 +40,11 @@ func CheckPasswordInFolder(ctx context.Context, dir string, pass string) error {
 	}
 
 	hash := hash.Compute(pass)
-	ensureRangeDownloaded(ctx, dir, hash[:5], folderStore)
+
+	err = ensureRangeDownloaded(ctx, dir, hash[:5], folderStore)
+	if err != nil {
+		return err
+	}
 
 	contains, err := folderStore.Contains(hash)
 	if err != nil {

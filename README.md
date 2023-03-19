@@ -61,5 +61,4 @@ x-content-type-options: nosniff
 ## todo 
  - bloom build
  - bloom check 
- - single file download - skip counts? 
- - metadata store - bbolt for kicks 
+ - store config dir in e.g. `~/.config/comPass/config.yml`
