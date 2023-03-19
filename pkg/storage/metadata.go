@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/golonzovsky/comPass/pkg/hash"
 	"github.com/golonzovsky/comPass/pkg/pwned"
 	bolt "go.etcd.io/bbolt"
 )
@@ -57,23 +58,28 @@ func (ms *MetadataStore) Save(hashPrefix string, metadata *pwned.RangeMetadata) 
 	}
 	return ms.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket(rangeMetadataBucket)
-		err := b.Put([]byte(hashPrefix), m)
-		return err
+		hashByte, err := hash.FromPrefix(hashPrefix)
+		if err != nil {
+			return err
+		}
+		return b.Put(hashByte, m)
 	})
 }
 
 func (ms *MetadataStore) get(hashPrefix string) (*pwned.RangeMetadata, error) {
 	var metadata pwned.RangeMetadata
-	err := ms.db.View(func(tx *bolt.Tx) error {
+	return &metadata, ms.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket(rangeMetadataBucket)
-		m := b.Get([]byte(hashPrefix))
+		hashByte, err := hash.FromPrefix(hashPrefix)
+		if err != nil {
+			return err
+		}
+		m := b.Get(hashByte)
 		if m == nil {
 			return nil
 		}
-		err := json.Unmarshal(m, &metadata)
-		return err
+		return json.Unmarshal(m, &metadata)
 	})
-	return &metadata, err
 }
 
 func (ms *MetadataStore) NeedsRefresh(hashPrefix string) (bool, error) {
