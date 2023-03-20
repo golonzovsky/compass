@@ -1,4 +1,4 @@
-module github.com/golonzovsky/comPass
+module github.com/golonzovsky/compass
 
 go 1.20
 

@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golonzovsky/comPass/pkg/hash"
-	"github.com/golonzovsky/comPass/pkg/pwned"
+	"github.com/golonzovsky/compass/pkg/hash"
+	"github.com/golonzovsky/compass/pkg/pwned"
 	bolt "go.etcd.io/bbolt"
 )
 

@@ -7,7 +7,7 @@ import (
 	"syscall"
 
 	"github.com/charmbracelet/log"
-	"github.com/golonzovsky/comPass/cmd"
+	"github.com/golonzovsky/compass/cmd"
 )
 
 func main() {

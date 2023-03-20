@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/log"
-	"github.com/golonzovsky/comPass/pkg/pwned"
+	"github.com/golonzovsky/compass/pkg/pwned"
 )
 
 // todo implement metadata (etag, lastModified etc) storage as well

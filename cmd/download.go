@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/charmbracelet/log"
-	"github.com/golonzovsky/comPass/pkg/hash"
-	"github.com/golonzovsky/comPass/pkg/pwned"
-	"github.com/golonzovsky/comPass/pkg/storage"
+	"github.com/golonzovsky/compass/pkg/hash"
+	"github.com/golonzovsky/compass/pkg/pwned"
+	"github.com/golonzovsky/compass/pkg/storage"
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
 )
@@ -62,8 +62,8 @@ func NewDownloadCmd() *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringVarP(&options.OutDir, "output-dir", "o", "~/.compass/hashes", "Output dir location")
-	cmd.Flags().IntVarP(&options.Parallel, "parallel", "p", 10, "Number of parallel downloads")
+	cmd.Flags().StringVar(&options.OutDir, "dir", "~/.compass/hashes", "Output dir location")
+	cmd.Flags().IntVarP(&options.Parallel, "parallel", "p", 100, "Number of parallel downloads")
 
 	return cmd
 }

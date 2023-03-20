@@ -61,4 +61,4 @@ x-content-type-options: nosniff
 ## todo 
  - bloom build
  - bloom check 
- - store config dir in e.g. `~/.config/comPass/config.yml`
+ - store config dir in e.g. `~/.config/compass/config.yml`

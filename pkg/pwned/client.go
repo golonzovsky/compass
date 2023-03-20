@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/log"
-	"github.com/golonzovsky/comPass/pkg/hash"
+	"github.com/golonzovsky/compass/pkg/hash"
 	"github.com/google/brotli/go/cbrotli"
 )
 
