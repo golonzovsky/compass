@@ -74,17 +74,18 @@ func (rr *RangeResponse) String() string {
 
 // todo use If-None-Match header to check if changed in case its overide, take etag from metadata store
 func (c *client) DownloadRange(ctx context.Context, hashPrefix string) (*RangeResponse, error) {
-	req, err := http.NewRequestWithContext(ctx, "GET", c.apiPrefix+"/range/"+hashPrefix, nil)
+	req, err := http.NewRequest("GET", c.apiPrefix+"/range/"+hashPrefix, nil)
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Set("Accept-Encoding", "br")
 
-	resp, err := c.httpClient.Do(req)
+	resp, err := c.doWithRetry(ctx, req, 5)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
+
 	responseData, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
