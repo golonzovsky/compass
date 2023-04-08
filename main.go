@@ -12,7 +12,8 @@ import (
 
 func main() {
 	log.SetLevel(log.DebugLevel)
-	errorLogger := log.New(log.WithOutput(os.Stderr))
+	//log.SetLevel(log.InfoLevel)
+	errorLogger := log.New(os.Stderr)
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
