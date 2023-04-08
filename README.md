@@ -1,12 +1,17 @@
 # comPass - compromised password checks
+
 download/check compromised password hashes from haveibeenpwned.com
 
-
 ### Download
-Download inspired by https://github.com/HaveIBeenPwned/PwnedPasswordsDownloader  
-Uses range search api endpoint (https://haveibeenpwned.com/API/v3#SearchingPwnedPasswordsByRange) to get hashes for all (`0x00000-0xFFFFF`) ranges.
 
-> A range search typically returns approximately 800 hash suffixes, although this number will differ depending on the hash prefix being searched for and will increase as more passwords are added. There are 1,048,576 different hash prefixes between 00000 and FFFFF (16^5) and every single one will return HTTP 200; there is no circumstance in which the API should return HTTP 404.
+Download inspired by https://github.com/HaveIBeenPwned/PwnedPasswordsDownloader  
+Uses range search api endpoint (https://haveibeenpwned.com/API/v3#SearchingPwnedPasswordsByRange) to get hashes for
+all (`0x00000-0xFFFFF`) ranges.
+
+> A range search typically returns approximately 800 hash suffixes, although this number will differ depending on the
+> hash prefix being searched for and will increase as more passwords are added. There are 1,048,576 different hash
+> prefixes between 00000 and FFFFF (16^5) and every single one will return HTTP 200; there is no circumstance in which the
+> API should return HTTP 404.
 
 ```bash
 xh https://api.pwnedpasswords.com/range/21BD1                                                                                dev-cookie/search 
@@ -36,7 +41,8 @@ x-content-type-options: nosniff
 
 ```
 
-`If-None-Match` can be used to check if range changed since last request. 
+`If-None-Match` can be used to check if range changed since last request.
+
 ```bash 
 xh https://api.pwnedpasswords.com/range/21BD1 If-None-Match:'W/"0x8DB19B10CBC28C1"'
 HTTP/2.0 304 Not Modified
@@ -58,7 +64,12 @@ x-content-type-options: nosniff
 
 ```
 
-## todo 
- - bloom build
- - bloom check 
- - store config dir in e.g. `~/.config/compass/config.yml`
+## todo
+
+- bloom build
+- bloom check
+- store config dir in e.g. `~/.config/compass/config.yml`
+- do retry on  
+```
+2023/03/25 15:47:48 ERRO Failure during hash download err="Get \"https://api.pwnedpasswords.com/range/14ae4\": context deadline exceeded (Client.Timeout exceeded while awaiting headers)"
+```

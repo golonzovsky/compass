@@ -5,7 +5,7 @@ import "testing"
 func Test_wordsNeededFor(t *testing.T) {
 	cases := []struct {
 		num uint
-		exp uint
+		exp int
 	}{
 		{
 			1,
@@ -18,7 +18,7 @@ func Test_wordsNeededFor(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		got := wordNeededFor(c.num)
+		got := wordsNeededFor(c.num)
 
 		if got != c.exp {
 			t.Errorf("expected %d, got %d", c.exp, got)
