@@ -28,7 +28,8 @@ type downloader struct {
 	mdStore *storage.MetadataStore
 	store   *storage.FolderStorage
 
-	parallel int
+	parallel   int
+	pwndClient pwned.Client
 }
 
 func NewDownloader(outDir string, parallel int) (*downloader, error) {
@@ -43,10 +44,13 @@ func NewDownloader(outDir string, parallel int) (*downloader, error) {
 		return nil, err
 	}
 
+	pwndClient := pwned.NewClient()
+
 	return &downloader{
-		mdStore:  mdStore,
-		store:    store,
-		parallel: parallel,
+		mdStore:    mdStore,
+		store:      store,
+		pwndClient: pwndClient,
+		parallel:   parallel,
 	}, nil
 }
 
@@ -62,7 +66,7 @@ func (d *downloader) Download(ctx context.Context) error {
 func (d *downloader) downloadHashes(ctx context.Context, hashCh <-chan string) (<-chan *pwned.RangeResponse, <-chan error) {
 	ranges := make(chan *pwned.RangeResponse, d.parallel)
 	errs := make(chan error, 1)
-	pwndClient := pwned.NewClient()
+
 	g, _ := errgroup.WithContext(ctx)
 	for i := 0; i < d.parallel; i++ {
 		g.Go(func() error {
@@ -75,7 +79,7 @@ func (d *downloader) downloadHashes(ctx context.Context, hashCh <-chan string) (
 					log.Debug("Skipping hash range, as its up to date", "hashPrefix", prefix)
 					continue
 				}
-				rangeResp, err := pwndClient.DownloadRange(ctx, prefix)
+				rangeResp, err := d.pwndClient.DownloadRange(ctx, prefix)
 				if err != nil {
 					return err
 				}

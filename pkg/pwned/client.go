@@ -21,7 +21,12 @@ type client struct {
 	httpClient *http.Client
 }
 
-func NewClient() *client {
+type Client interface {
+	CheckPasswordOnline(ctx context.Context, pass string) error
+	DownloadRange(ctx context.Context, hashPrefix string) (*RangeResponse, error)
+}
+
+func NewClient() Client {
 	return &client{
 		apiPrefix: "https://api.pwnedpasswords.com",
 		httpClient: &http.Client{
