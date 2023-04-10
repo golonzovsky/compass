@@ -1,5 +1,7 @@
 package bloom
 
+import "math/bits"
+
 const (
 	wordSize     = 64
 	log2WordSize = 6
@@ -77,4 +79,16 @@ func (b *BitSet) extendToFit(i uint64) {
 		b.set = newBits
 	}
 	b.length = i + 1
+}
+
+func (b *BitSet) CountOnes() uint {
+	if b == nil && b.set == nil {
+		return 0
+	}
+
+	var cnt int
+	for _, x := range b.set {
+		cnt += bits.OnesCount64(x)
+	}
+	return uint(cnt)
 }

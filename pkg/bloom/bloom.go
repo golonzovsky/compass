@@ -26,6 +26,15 @@ func NewFilter(n uint, p float64) *Filter {
 	}
 }
 
+// ApproximatedSize https://en.wikipedia.org/wiki/Bloom_filter#Approximating_the_number_of_items_in_a_Bloom_filter
+func (f *Filter) ApproximatedSize() uint64 {
+	ones := float64(f.b.CountOnes())
+	k := float64(f.k)
+	m := float64(f.m)
+	size := -m / k * math.Log(1-ones/m)
+	return uint64(math.Round(size))
+}
+
 func (f *Filter) keyToPos(key []byte) []uint64 {
 	hM := murmur3.Sum64(key)
 
