@@ -5,7 +5,7 @@ const (
 	log2WordSize = 6
 )
 
-//todo should we just wrap big.Int instead?
+// todo should we just wrap big.Int instead?
 
 type BitSet struct {
 	length uint
@@ -20,7 +20,9 @@ func NewBitSet(length uint) *BitSet {
 }
 
 func wordsNeededFor(i uint) int {
-	//todo check for max cap
+	if i > maxCap() {
+		panic("bitset max cap exceeded")
+	}
 	return int((i + wordSize - 1) >> log2WordSize)
 }
 
