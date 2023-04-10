@@ -25,6 +25,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/twmb/murmur3 v1.1.6 // indirect
 	golang.org/x/sys v0.6.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
