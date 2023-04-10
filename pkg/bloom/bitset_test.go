@@ -1,6 +1,8 @@
 package bloom
 
-import "testing"
+import (
+	"testing"
+)
 
 func Test_wordsNeededFor(t *testing.T) {
 	cases := []struct {
@@ -22,6 +24,23 @@ func Test_wordsNeededFor(t *testing.T) {
 
 		if got != c.exp {
 			t.Errorf("expected %d, got %d", c.exp, got)
+		}
+	}
+}
+
+func Test_bitSet(t *testing.T) {
+	bs := BitSet{}
+	for i := uint(0); i < 10000; i += 2 {
+		bs.Set(i)
+	}
+
+	for i := uint(0); i < 10000; i++ {
+		bit := bs.Get(i)
+		if i%2 == 0 && !bit {
+			t.Errorf("expected %d to be set", i)
+		}
+		if i%2 == 1 && bit {
+			t.Errorf("expected %d to be unset", i)
 		}
 	}
 }

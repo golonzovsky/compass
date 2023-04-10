@@ -1,9 +1,5 @@
 package bloom
 
-import (
-	"math/bits"
-)
-
 const (
 	wordSize     = 64
 	log2WordSize = 6
@@ -33,7 +29,7 @@ func indexInWord(i uint) uint {
 }
 
 func maxCap() uint {
-	return bits.UintSize
+	return ^uint(0)
 }
 
 func (b *BitSet) Set(i uint) {
