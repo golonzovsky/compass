@@ -6,7 +6,7 @@ import (
 
 func Test_wordsNeededFor(t *testing.T) {
 	cases := []struct {
-		num uint
+		num uint64
 		exp int
 	}{
 		{
@@ -30,11 +30,11 @@ func Test_wordsNeededFor(t *testing.T) {
 
 func Test_bitSet(t *testing.T) {
 	bs := BitSet{}
-	for i := uint(0); i < 10000; i += 2 {
+	for i := uint64(0); i < 10000; i += 2 {
 		bs.Set(i)
 	}
 
-	for i := uint(0); i < 10000; i++ {
+	for i := uint64(0); i < 10000; i++ {
 		bit := bs.Get(i)
 		if i%2 == 0 && !bit {
 			t.Errorf("expected %d to be set", i)
