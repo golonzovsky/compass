@@ -78,7 +78,7 @@ func (fs *FolderStorage) Contains(hash string) (bool, error) {
 	}
 	defer rr.Close()
 
-	//todo binary search
+	//todo binary search, may require get rid of counts
 	lines, err := io.ReadAll(rr)
 	if err != nil {
 		return false, err
@@ -90,4 +90,28 @@ func (fs *FolderStorage) Contains(hash string) (bool, error) {
 	}
 
 	return false, nil
+}
+
+func (fs *FolderStorage) GetRange(prefix string) ([]string, error) {
+	prefix = strings.ToLower(prefix)
+
+	rr, err := os.Open(fs.path + "/" + prefix + ".txt")
+	if err != nil {
+		return nil, err
+	}
+	defer rr.Close()
+
+	res := make([]string, 800)
+	lines, err := io.ReadAll(rr)
+	if err != nil {
+		return nil, err
+	}
+	for _, line := range strings.Split(string(lines), "\n") {
+		split := strings.Split(line, ":")
+		if len(split) != 2 {
+			return nil, fmt.Errorf("invalid line in range file: %s", line)
+		}
+		res = append(res, prefix+split[0])
+	}
+	return res, nil
 }

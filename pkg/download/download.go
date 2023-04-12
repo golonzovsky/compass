@@ -32,26 +32,28 @@ type downloader struct {
 	pwndClient pwned.Client
 }
 
-func NewDownloader(outDir string, parallel int) (*downloader, error) {
+func NewDownloader(outDir string, parallel int) (*downloader, func(), error) {
+	noop := func() {}
 	mdStore, err := storage.NewMetadataStore(outDir)
 	if err != nil {
-		return nil, err
+		return nil, noop, err
 	}
-	defer mdStore.Close()
 
 	store, err := storage.NewFolderStorage(outDir)
 	if err != nil {
-		return nil, err
+		return nil, noop, err
 	}
 
 	pwndClient := pwned.NewClient()
 
 	return &downloader{
-		mdStore:    mdStore,
-		store:      store,
-		pwndClient: pwndClient,
-		parallel:   parallel,
-	}, nil
+			mdStore:    mdStore,
+			store:      store,
+			pwndClient: pwndClient,
+			parallel:   parallel,
+		}, func() {
+			mdStore.Close()
+		}, nil
 }
 
 func (d *downloader) Download(ctx context.Context) error {

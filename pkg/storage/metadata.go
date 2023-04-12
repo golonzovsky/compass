@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/charmbracelet/log"
 	"github.com/golonzovsky/compass/pkg/hash"
 	"github.com/golonzovsky/compass/pkg/pwned"
 	bolt "go.etcd.io/bbolt"
@@ -90,6 +91,24 @@ func (ms *MetadataStore) get(hashPrefix string) (*pwned.RangeMetadata, error) {
 		}
 		return json.Unmarshal(m, &metadata)
 	})
+}
+
+func (ms *MetadataStore) StreamAvailableKeys() (<-chan string, error) {
+	ch := make(chan string)
+	go func() {
+		defer close(ch)
+		err := ms.db.View(func(tx *bolt.Tx) error {
+			b := tx.Bucket(rangeMetadataBucket)
+			return b.ForEach(func(k, v []byte) error {
+				ch <- hash.ToPrefix(k)
+				return nil
+			})
+		})
+		if err != nil {
+			log.Error(err)
+		}
+	}()
+	return ch, nil
 }
 
 func (ms *MetadataStore) NeedsRefresh(hashPrefix string) (bool, error) {

@@ -11,9 +11,9 @@ import (
 // but implement here for study purposes
 
 type Filter struct {
-	m uint64
-	k uint64
-	b *BitSet
+	m uint64  `json:"m"`
+	k uint64  `json:"k"`
+	b *BitSet `json:"b"`
 }
 
 func NewFilter(n uint, p float64) *Filter {

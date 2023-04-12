@@ -15,10 +15,11 @@ func NewDownloadCmd() *cobra.Command {
 		Use:   "download",
 		Short: "download hashes from haveibeenpwned.com (~25Gb)",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			d, err := download.NewDownloader(options.OutDir, options.Parallel)
+			d, closeStore, err := download.NewDownloader(options.OutDir, options.Parallel)
 			if err != nil {
 				return err
 			}
+			defer closeStore()
 			return d.Download(cmd.Context())
 		},
 	}

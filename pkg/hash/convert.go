@@ -11,3 +11,7 @@ func FromPrefix(prefix string) ([]byte, error) {
 	}
 	return hex.DecodeString("0" + prefix)
 }
+
+func ToPrefix(prefix []byte) string {
+	return hex.EncodeToString(prefix)[1:]
+}
