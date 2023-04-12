@@ -60,11 +60,11 @@ func CheckPassword(ctx context.Context, dir string, pass string) error {
 }
 
 func ensureRangeDownloaded(ctx context.Context, dir, prefix string, store *storage.FolderStorage) error {
-	mStore, err := storage.NewMetadataStore(dir)
+	mStore, closeMd, err := storage.NewMetadataStore(dir)
 	if err != nil {
 		return err
 	}
-	defer mStore.Close()
+	defer closeMd()
 
 	if needsRefresh, err := mStore.NeedsRefresh(prefix); err != nil || !needsRefresh {
 		return err

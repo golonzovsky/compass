@@ -24,11 +24,11 @@ func NewBloomCmd() *cobra.Command {
 }
 
 func doBuildBloomFilters(dir string) error {
-
-	ms, err := storage.NewMetadataStore(dir)
+	ms, closeMd, err := storage.NewMetadataStore(dir)
 	if err != nil {
 		return err
 	}
+	defer closeMd()
 
 	keys, err := ms.StreamAvailableKeys()
 	if err != nil {

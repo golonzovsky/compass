@@ -34,7 +34,7 @@ type downloader struct {
 
 func NewDownloader(outDir string, parallel int) (*downloader, func(), error) {
 	noop := func() {}
-	mdStore, err := storage.NewMetadataStore(outDir)
+	mdStore, closeMd, err := storage.NewMetadataStore(outDir)
 	if err != nil {
 		return nil, noop, err
 	}
@@ -47,13 +47,11 @@ func NewDownloader(outDir string, parallel int) (*downloader, func(), error) {
 	pwndClient := pwned.NewClient()
 
 	return &downloader{
-			mdStore:    mdStore,
-			store:      store,
-			pwndClient: pwndClient,
-			parallel:   parallel,
-		}, func() {
-			mdStore.Close()
-		}, nil
+		mdStore:    mdStore,
+		store:      store,
+		pwndClient: pwndClient,
+		parallel:   parallel,
+	}, closeMd, nil
 }
 
 func (d *downloader) Download(ctx context.Context) error {

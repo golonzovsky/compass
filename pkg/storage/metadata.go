@@ -19,36 +19,38 @@ type MetadataStore struct {
 
 // NewMetadataStore creates new store in specified folder with metadata.db name.
 // does create folder if not existing, expands home path (~) if needed
-func NewMetadataStore(path string) (*MetadataStore, error) {
+func NewMetadataStore(path string) (*MetadataStore, func(), error) {
+	noop := func() {}
+
 	path, err := expandHome(path)
 	if err != nil {
-		return nil, err
+		return nil, noop, err
 	}
 
 	err = ensureFolderExists(path)
 	if err != nil {
-		return nil, err
+		return nil, noop, err
 	}
 
 	db, err := bolt.Open(path+"/metadata.db", 0600, &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
-		return nil, err
-	}
-
-	err = db.Update(func(tx *bolt.Tx) error {
-		_, err := tx.CreateBucketIfNotExists(rangeMetadataBucket)
-		if err != nil {
-			return fmt.Errorf("create bucket: %s", err)
-		}
-		return nil
-	})
-	if err != nil {
-		return nil, err
+		return nil, noop, err
 	}
 
 	return &MetadataStore{
-		db: db,
-	}, nil
+			db: db,
+		}, func() {
+			err := db.Close()
+			if err != nil {
+				log.Error(err)
+			}
+		}, db.Update(func(tx *bolt.Tx) error {
+			_, err := tx.CreateBucketIfNotExists(rangeMetadataBucket)
+			if err != nil {
+				return fmt.Errorf("create bucket: %s", err)
+			}
+			return nil
+		})
 }
 
 func expandHome(path string) (string, error) {
@@ -120,8 +122,4 @@ func (ms *MetadataStore) NeedsRefresh(hashPrefix string) (bool, error) {
 		return true, nil
 	}
 	return time.Now().After(metadata.Expires), nil
-}
-
-func (ms *MetadataStore) Close() {
-	ms.db.Close()
 }
